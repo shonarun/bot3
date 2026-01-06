@@ -1,0 +1,23 @@
+<launch>
+    <let name = "urdf_xacro_path" value = "$(find-pkg-share bot3_description)/urdf/model1.urdf.xacro" />
+    <let name = "world" value = "$(find-pkg-share bot3_worlds)/worlds/world.sdf" />
+    <let name = "gazebo_config_path" value = "$(find-pkg-share bot3_bringup)/config/bot3_bridge.yaml" />
+
+    <node pkg = "robot_state_publisher" exec = "robot_state_publisher">
+        <param name = "use_sim_time" value = "true" />
+        <param name = "robot_description" value = "$(command 'xacro $(var urdf_xacro_path)')" />
+    </node>
+
+    <include file = "$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
+        <arg name = "gz_args" value = "$(var world) -r" />
+    </include>
+
+    <node pkg = "ros_gz_sim" exec = "create" args = "-topic robot_description -name bot3" output = "screen">
+        <!-- <param name = "use_sim_time" value = "true" /> -->
+    </node>
+    <node pkg = "ros_gz_bridge" exec = "parameter_bridge" args = "--ros-args -p config_file:=$(var gazebo_config_path)" output = "screen">
+        <!-- <param name = "use_sim_time" value = "true" /> -->
+        <!-- <param name = "config_file" value = "$(var gazebo_config_path)" /> -->
+    </node>
+    <!-- <node pkg = "ros_gz_image"  exec = "image_bridge" args = "/camera/image_raw" output = "screen" /> -->
+</launch>
